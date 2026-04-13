@@ -1,0 +1,15 @@
+{
+  "name": "staffsync-hrms",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "axios": "^1.7.4",
+    "laravel-vite-plugin": "^1.0",
+    "vite": "^6.0"
+  }
+}
