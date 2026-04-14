@@ -29,6 +29,7 @@ class Employee extends Model
         'job_id',
         'joining_date',
         'status',
+        'is_admin',
     ];
 
     /**
