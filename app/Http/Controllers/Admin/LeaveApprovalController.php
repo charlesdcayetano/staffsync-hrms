@@ -39,6 +39,8 @@ class LeaveApprovalController extends Controller
             'status' => $request->status,
             'hr_remarks' => $request->hr_remarks
         ]);
+        
+        $leave->employee->user->notify(new \App\Notifications\LeaveStatusUpdated($leave));
 
         // Audit Trail
         AuditLog::create([
