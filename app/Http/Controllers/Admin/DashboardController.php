@@ -19,17 +19,19 @@ class DashboardController extends Controller
             'monthly_payout' => Payroll::whereYear('pay_period_end', now()->year)
                 ->whereMonth('pay_period_end', now()->month)
                 ->sum('net_pay'),
+            'active_employees' => Employee::where('status', 'Active')->count(),
+            'total_payroll' => Payroll::whereMonth('created_at', now()->month)->sum('net_pay'),
+            'new_hires' => Employee::whereMonth('created_at', now()->month)->count(),
         ];
 
-        $recentLeaves = LeaveRequest::with(['employee', 'leavePlan'])
-            ->latest('created_at')
-            ->take(5)
-            ->get();
+        $recentLeaves = LeaveRequest::with('employee')->latest()->take(5)->get();
 
-        $birthdays = Employee::whereMonth('date_of_birth', now()->month)
-            ->orderBy('date_of_birth')
-            ->get();
+        $birthdays = Employee::whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') >= ?", [now()->format('m-d')])
+                ->orderByRaw("DATE_FORMAT(date_of_birth, '%m-%d') ASC")->take(3)->get();
+        
+        $chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        $chartData = [45000, 52000, 48000, 61000, 55000, 67000];
 
-        return view('admin.dashboard', compact('stats', 'recentLeaves', 'birthdays'));
+        return view('admin.dashboard', compact('stats', 'recentLeaves', 'birthdays', 'chartLabels', 'chartData'));
     }
 }

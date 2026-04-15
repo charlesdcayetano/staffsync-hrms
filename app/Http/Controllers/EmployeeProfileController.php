@@ -37,21 +37,20 @@ class EmployeeProfileController extends Controller
      * Update Personal & Contact Details.
      */
     public function updatePersonal(Request $request)
-    {
-        $employee = Auth::user()->employee;
+{
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $employee = $user->employee;
 
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'required|string|max:50',
-            'phone_number' => 'required|string',
-            'residential_address' => 'required|string',
-            'city_of_residence' => 'required|string',
-        ]);
-
-        $employee->update($validated);
-
-        return back()->with('success', 'Personal details updated successfully!');
+    if ($request->hasFile('profile_photo')) {
+        $path = $request->file('profile_photo')->store('profile_photos', 'public');
+        $employee->update(['profile_photo' => $path]);
     }
+
+    $employee->update($request->only(['phone_number', 'city_of_residence']));
+
+    return back()->with('success', 'Profile updated successfully.');
+}
 
     /**
      * Handle Document Uploads (Office Letter, Birth Cert, etc.)

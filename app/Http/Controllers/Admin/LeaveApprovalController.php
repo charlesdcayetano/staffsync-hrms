@@ -10,11 +10,9 @@ use Illuminate\Support\Facades\Auth;
 
 class LeaveApprovalController extends Controller
 {
-    /**
-     * Show all pending and ongoing leaves for HR.
-     */
     public function index()
     {
+        // Get pending requests and ongoing leaves for the recall feature
         $pendingLeaves = LeaveRequest::where('status', 'Pending')->with(['employee', 'leavePlan'])->get();
         $ongoingLeaves = LeaveRequest::where('status', 'Approved')
             ->where('start_date', '<=', now())
@@ -22,12 +20,9 @@ class LeaveApprovalController extends Controller
             ->with(['employee', 'reliefOfficer'])
             ->get();
 
-        return view('admin.leaves.manage', compact('pendingLeaves', 'ongoingLeaves'));
+        return view('admin.leaves.index', compact('pendingLeaves', 'ongoingLeaves'));
     }
 
-    /**
-     * Approve or Decline a Leave Request.
-     */
     public function updateStatus(Request $request, LeaveRequest $leave)
     {
         $request->validate([
@@ -39,45 +34,26 @@ class LeaveApprovalController extends Controller
             'status' => $request->status,
             'hr_remarks' => $request->hr_remarks
         ]);
-        
-        $leave->employee->user->notify(new \App\Notifications\LeaveStatusUpdated($leave));
 
-        // Audit Trail
         AuditLog::create([
             'user_id' => Auth::id(),
-            'action' => "Changed Leave #{$leave->id} status to {$request->status}",
+            'action' => "Leave #{$leave->id} was {$request->status} by HR.",
             'table_affected' => 'leave_requests'
         ]);
 
         return back()->with('success', "Leave request has been {$request->status}.");
     }
 
-    /**
-     * Recall an Employee (For ongoing leaves).
-     */
     public function recall(Request $request, LeaveRequest $leave)
     {
-        $request->validate([
-            'reason_for_recall' => 'required|string',
-            'recall_date' => 'required|date'
-        ]);
-
-        // Logic: Calculate remaining days
-        $remainingDays = now()->diffInDays($leave->end_date);
+        $request->validate(['reason' => 'required|string', 'recall_date' => 'required|date']);
 
         $leave->update([
             'status' => 'Recalled',
-            'hr_remarks' => "RECALL: " . $request->reason_for_recall,
-            'end_date' => $request->recall_date // Shorten the leave to today
+            'end_date' => $request->recall_date,
+            'hr_remarks' => "RECALL REASON: " . $request->reason
         ]);
 
-        // Audit Trail
-        AuditLog::create([
-            'user_id' => Auth::id(),
-            'action' => "Recalled Employee from Leave #{$leave->id}. Days lost: {$remainingDays}",
-            'table_affected' => 'leave_requests'
-        ]);
-
-        return back()->with('warning', 'Employee has been officially recalled.');
+        return back()->with('warning', 'Employee has been officially recalled from leave.');
     }
 }

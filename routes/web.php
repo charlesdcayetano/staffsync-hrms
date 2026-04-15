@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController; // Ensure you created this!
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\Admin\EmployeeManagementController;
@@ -10,14 +11,24 @@ use App\Http\Controllers\Admin\AppraisalController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Auth;
 
+// --- GUEST ROUTES ---
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-// --- AUTHENTICATED USER ROUTES ---
+// Explicitly defining Login routes to prevent MethodNotAllowed errors
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
+
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+
+// --- AUTHENTICATED USER (STAFF) ROUTES ---
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard (General)
+    // General Dashboard
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -30,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/upload-document', [EmployeeProfileController::class, 'uploadDocument'])->name('uploadDocument');
     });
 
-    // Employee Self-Service (Leaves, Payslips, Performance)
+    // Employee Self-Service
     Route::get('/leaves', [LeaveRequestController::class, 'index'])->name('leaves.index');
     Route::post('/leaves/apply', [LeaveRequestController::class, 'store'])->name('leaves.store');
     
@@ -38,17 +49,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-payslips/{payroll}', [PayrollController::class, 'show'])->name('employee.payslip.view');
 
     Route::get('/my-performance', function() {
-        $appraisals = Auth::user()->employee->appraisals()->with('kpiGoal')->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $appraisals = $user->employee->appraisals()->with('kpiGoal')->get();
         return view('employee.performance.index', compact('appraisals'));
     })->name('employee.performance');
-
 });
 
+
 // --- ADMIN / HR ONLY ROUTES ---
-// Make sure you have an 'admin' middleware defined in app/Http/Kernel.php
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    // Dashboard
+    // Admin Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Workforce Management
@@ -73,4 +85,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 });
 
-require __DIR__.'/auth.php';
+// require __DIR__.'/auth.php'; // Commented out to prevent route conflicts
