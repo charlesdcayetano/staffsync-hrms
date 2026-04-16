@@ -60,7 +60,7 @@
             <div class="mt-6 space-y-2">
                 <div class="flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-red-400"></div>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Hospital Holidays</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Holidays</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-gray-900"></div>

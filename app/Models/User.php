@@ -53,7 +53,8 @@ class User extends Authenticatable
      * Link the authenticated user to their employee record.
      */
     // app/Models/User.php
+    // App\Models\User.php
     public function employee() {
-        return $this->hasOne(Employee::class);
-    }
+    return $this->belongsTo(Employee::class);
+}
 }

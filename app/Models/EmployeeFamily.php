@@ -9,13 +9,12 @@ class EmployeeFamily extends Model
 {
     protected $fillable = [
         'employee_id',
-        'full_name',
+        'name',
         'relationship',
-        'occupation',
-        'phone_number',
+        'contact_number',
         'address',
         'is_next_of_kin',
-        'is_emergency_contact'
+        'is_emergency_contact',
     ];
 
     public function employee(): BelongsTo

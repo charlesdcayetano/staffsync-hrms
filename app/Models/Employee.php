@@ -20,15 +20,19 @@ class Employee extends Model
         'user_id',
         'employee_code',
         'first_name',
+        'middle_name',
         'last_name',
-        'gender',
+        'email',
+        'phone_number',
         'date_of_birth',
-        'marital_status',
+        'address',
+        'department',
+        'designation',
         'employment_type',
-        'department_id',
-        'job_id',
+        'job_title',
         'joining_date',
         'status',
+        'gender',
         'is_admin',
     ];
 
@@ -61,9 +65,9 @@ class Employee extends Model
      */
 
     // Financial Details (Bank name, Account no)
-    public function finance(): HasOne
+    public function nextOfKin(): HasOne
     {
-        return $this->hasOne(EmployeeFinance::class);
+        return $this->hasOne(EmployeeFamily::class)->where('is_next_of_kin', true);
     }
 
     // Education Records (Degrees, Institutions)
@@ -118,5 +122,11 @@ class Employee extends Model
     public function isOnLeave(): bool
     {
         return $this->status === 'On Leave';
+    }
+
+    public function financialDetails(): HasOne
+    {
+        // Make sure the class name matches your Finance model (usually EmployeeFinance)
+        return $this->hasOne(EmployeeFinance::class);
     }
 }

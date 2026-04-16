@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
         ]);
 
+        $this->call([
+        EmployeeSeeder::class,
+    ]);
+
         // Create the Admin's Employee Profile
         Employee::create([
             'user_id' => $adminUser->id,
@@ -32,8 +36,8 @@ class DatabaseSeeder extends Seeder
             'joining_date' => now(),
             'status' => 'Active',
             'is_admin' => true,
-            // 'email' => 'admin@hrms.com',
-            // 'password' => bcrypt('password'),
+            'email' => 'admin@hrms.com',
+            'password' => bcrypt('password'),
         ]);
 
         // 2. Create 10 Dummy Employees with Relations

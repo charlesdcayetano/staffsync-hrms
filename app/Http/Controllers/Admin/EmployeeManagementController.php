@@ -12,19 +12,20 @@ class EmployeeManagementController extends Controller
 {
     public function index(Request $request)
 {
-    $query = Employee::query();
+    // app/Http/Controllers/Admin/EmployeeManagementController.php
 
-    if ($request->has('search')) {
-        $search = $request->input('search');
-        $query->where(function($q) use ($search) {
-            $q->where('first_name', 'like', "%{$search}%")
-              ->orWhere('last_name', 'like', "%{$search}%")
-              ->orWhere('employee_id', 'like', "%{$search}%");
-        });
-    }
+$search = $request->input('search');
 
+$query = Employee::query();
+
+if ($search) {
+    $query->where(function ($q) use ($search) {
+        $q->where('first_name', 'like', "%{$search}%")
+          ->orWhere('last_name', 'like', "%{$search}%")
+          ->orWhere('employee_code', 'like', "%{$search}%"); // Fix: Change employee_id to employee_code
+    });
+}
     $employees = $query->paginate(10);
-
     return view('admin.employees.index', compact('employees'));
 }
 

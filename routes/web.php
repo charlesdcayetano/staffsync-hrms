@@ -3,12 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController; // Ensure you created this!
 use App\Http\Controllers\LeaveRequestController;
-use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\Employee\ProfileController as EmployeeProfileController;
 use App\Http\Controllers\Admin\EmployeeManagementController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\LeaveApprovalController;
 use App\Http\Controllers\Admin\AppraisalController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Employee\PortalController;
 use Illuminate\Support\Facades\Auth;
 
 // --- GUEST ROUTES ---
@@ -24,6 +25,13 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(function () {
+    // The main profile route
+    Route::get('/profile', [App\Http\Controllers\Employee\ProfileController::class, 'index'])->name('profile.index');
+    
+    // Future CRUD routes for Employee
+    Route::put('/profile/update', [App\Http\Controllers\Employee\ProfileController::class, 'update'])->name('profile.update');
+});
 
 // --- AUTHENTICATED USER (STAFF) ROUTES ---
 Route::middleware(['auth'])->group(function () {
@@ -83,6 +91,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/goals', [AppraisalController::class, 'storeGoal'])->name('goals.store');
         Route::post('/appraise', [AppraisalController::class, 'storeAppraisal'])->name('appraise.store');
     });
+
+    Route::middleware(['auth', 'is_employee'])->prefix('portal')->name('employee.')->group(function () {
+    Route::get('/dashboard', [PortalController::class, 'index'])->name('dashboard');
+    
+    // Leave CRUD
+    Route::get('/leaves', [PortalController::class, 'leaves'])->name('leaves.index');
+    Route::get('/leaves/create', [PortalController::class, 'createLeave'])->name('leaves.create');
+    Route::post('/leaves', [PortalController::class, 'storeLeave'])->name('leaves.store');
+
+    // Payroll
+    Route::get('/payroll', [PortalController::class, 'payroll'])->name('payroll.index');
+});
 });
 
 // require __DIR__.'/auth.php'; // Commented out to prevent route conflicts

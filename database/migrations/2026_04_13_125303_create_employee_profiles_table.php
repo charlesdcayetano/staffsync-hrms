@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 1. Education Table
         Schema::create('employee_educations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
@@ -20,19 +21,9 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->timestamps();
-});
+        });
 
-        Schema::create('employee_families', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
-            $table->string('full_name');
-            $table->string('relationship');
-            $table->string('phone_number');
-            $table->boolean('is_next_of_kin')->default(false);
-            $table->boolean('is_emergency_contact')->default(false);
-            $table->timestamps();
-});
-
+        // 2. Guarantors Table
         Schema::create('employee_guarantors', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
@@ -41,7 +32,7 @@ return new class extends Migration
             $table->boolean('is_internal_staff')->default(false);
             $table->foreignId('internal_staff_id')->nullable()->constrained('employees');
             $table->timestamps();
-});
+        });
     }
 
     /**
@@ -49,6 +40,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employee_profiles');
+        Schema::dropIfExists('employee_guarantors');
+        Schema::dropIfExists('employee_educations');
     }
 };
