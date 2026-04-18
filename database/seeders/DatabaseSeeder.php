@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         // 1. Create the Admin Account (Your Access)
         $adminUser = User::create([
             'name' => 'Charles Admin',
-            'email' => 'admin@hrms.com',
+            'email' => 'adminn@hrms.com',
             'password' => Hash::make('password'),
             'is_admin' => true,
         ]);
